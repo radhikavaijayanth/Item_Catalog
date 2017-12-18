@@ -1,11 +1,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import create_engine
 
 Base = declarative_base()
 
-# Creating the table user with it's fields
 class User(Base):
    __tablename__ = 'user'
 
@@ -14,7 +13,6 @@ class User(Base):
    email= Column(String(250), nullable=False)
    picture = Column(String(250))
 
-# Creating the table reataurant with it's fields
 class Restaurant(Base):
    __tablename__ = 'restaurant'
 
@@ -32,7 +30,7 @@ class Restaurant(Base):
            'id'           : self.id,
       }
 
-# Creating the table menu_iem with it's fields
+
 class MenuItem(Base):
     __tablename__ = 'menu_item'
 
@@ -43,9 +41,9 @@ class MenuItem(Base):
     price = Column(String(8))
     course = Column(String(250))
     restaurant_id = Column(Integer,ForeignKey('restaurant.id'))
-    restaurant = relationship('Restaurant')
+    restaurant = relationship('Restaurant', backref=backref('menu_item', cascade='all, delete'))
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    user = relationship(User, backref="menu_item")
 
     @property
     def serialize(self):
@@ -58,6 +56,8 @@ class MenuItem(Base):
            'course'         : self.course,
        }
 
-# Creating the database engine
+
 engine = create_engine('sqlite:///restaurantappmenusource.db')
+
+
 Base.metadata.create_all(engine)
